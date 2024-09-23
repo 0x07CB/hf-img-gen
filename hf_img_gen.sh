@@ -1,5 +1,16 @@
 #!/bin/bash
 
+function sanitize_filename() {
+    local text="$1"
+    # Remplacer les espaces par des underscores
+    text="${text// /_}"
+
+    # Supprimer les caractères non autorisés
+    text=$(echo "$text" | tr -dc '[:alnum:]_')
+
+    echo "$text"
+}
+
 # if env var 'SEED' don't exists: SET 'SEED' with a RANDOM INTEGER 
 if [ -z "$SEED" ]; then
     SEED=$((1 + RANDOM % 1000))
@@ -58,7 +69,9 @@ while read -r PROMPT; do
     # Générer un nom de fichier unique
     TIMESTAMP=$(date +%Y%m%d_%H%M%S)
     RANDOM_NUMBER=$((1 + RANDOM % 1000))
-    OUTPUT_FILE="${PROMPT}_${TIMESTAMP}_${RANDOM_NUMBER}.jpg"
+    OUTPUT_FILE="${PROMPT}_${TIMESTAMP}_${RANDOM_NUMBER}"
+    OUTPUT_FILE=$(sanitize_filename "$OUTPUT_FILE")
+    OUTPUT_FILE="${OUTPUT_FILE}.jpg"
 
     # Exécuter la requête curl
     curl $MODEL_URL \
