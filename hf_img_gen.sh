@@ -1,9 +1,15 @@
 #!/bin/bash
 
+# if env var 'SEED' don't exists: SET 'SEED' with a RANDOM INTEGER 
+if [ -z "$SEED" ]; then
+    SEED=$((1 + RANDOM % 1000))
+fi
+
 # Initialiser les variables avec des valeurs par défaut
 MODEL_URL="$SERVERLESS_URL"
 PROMPT_FILE=""
 OUTPUT_FILE="output.json"
+PARAMETER__SEED=$SEED
 
 # Fonction pour afficher l'aide
 usage() {
@@ -57,10 +63,10 @@ while read -r PROMPT; do
     # Exécuter la requête curl
     curl $MODEL_URL \
         -X POST \
-        -d "{\"inputs\": \"$PROMPT\"}" \
+        -d "{\"inputs\": \"$PROMPT\", \"parameters\": {\"seed\": $PARAMETER__SEED}}" \
         -H 'Content-Type: application/json' \
         -H "Authorization: Bearer ${HF_API_KEY}" \
-        --output $OUTPUT_FILE
+	--output $OUTPUT_FILE
 
     # changer les droits d'accès du fichier
     chmod o+rw $OUTPUT_FILE
